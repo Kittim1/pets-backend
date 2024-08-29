@@ -24,8 +24,14 @@ switch ($action) {
     case 'getSpecies':
         getSpecies($connection);
         break;
+    case 'addSpecies':
+        addSpecies($connection);
+        break;
     case 'getBreeds':
         getBreeds($connection);
+        break;
+    case 'addBreed':
+        addBreed($connection);
         break;
     case 'getOwners':
         getOwners($connection);
@@ -113,6 +119,21 @@ function getSpecies($connection) {
     }
 }
 
+function addSpecies($connection) {
+    $speciesName = $_POST['speciesName'];
+
+    $stmt = $connection->prepare("INSERT INTO Species (SpeciesName) VALUES (?)");
+    $stmt->bind_param("s", $speciesName);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Failed to add species']);
+    }
+
+    $stmt->close();
+}
+
 function getBreeds($connection) {
     $query = "SELECT * FROM Breeds";
     $result = $connection->query($query);
@@ -128,8 +149,23 @@ function getBreeds($connection) {
     }
 }
 
+function addBreed($connection) {
+    $breedName = $_POST['breedName'];
+
+    $stmt = $connection->prepare("INSERT INTO Breeds (BreedName) VALUES (?)");
+    $stmt->bind_param("s", $breedName);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['error' => 'Failed to add breed']);
+    }
+
+    $stmt->close();
+}
+
 function getOwners($connection) {
-    $query = "SELECT * FROM Owners";
+    $query = "SELECT OwnerID, Name AS OwnerName, ContactDetails AS OwnerContactDetails, Address AS OwnerAddress FROM Owners";
     $result = $connection->query($query);
 
     if ($result->num_rows > 0) {
@@ -143,12 +179,12 @@ function getOwners($connection) {
     }
 }
 
+
 function addOwner($connection) {
     $ownerName = $_POST['ownerName'];
     $ownerContactDetails = $_POST['ownerContactDetails'];
     $ownerAddress = $_POST['ownerAddress'];
 
-    // Prepare statement without OwnerID
     $stmt = $connection->prepare("INSERT INTO Owners (Name, ContactDetails, Address) VALUES (?, ?, ?)");
     $stmt->bind_param("sss", $ownerName, $ownerContactDetails, $ownerAddress);
 
@@ -160,5 +196,4 @@ function addOwner($connection) {
 
     $stmt->close();
 }
-
 ?>
